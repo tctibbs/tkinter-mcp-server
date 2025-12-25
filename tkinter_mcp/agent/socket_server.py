@@ -27,12 +27,14 @@ from tkinter_mcp.bridge.protocol import (
     GET_RADIO_VALUE,
     GET_SCALE_VALUE,
     GET_UI_LAYOUT,
+    GET_WIDGET_VALUE,
     GET_WINDOW_GEOMETRY,
     RIGHT_CLICK_WIDGET,
     SELECT_COMBOBOX,
     SELECT_LISTBOX_ITEM,
     SELECT_RADIO,
     SET_SCALE_VALUE,
+    SET_WIDGET_VALUE,
     TOGGLE_CHECKBOX,
     TYPE_TEXT,
     Request,
@@ -174,6 +176,8 @@ class AgentServer:
             FOCUS_WIDGET: self._focus_widget,
             GET_FOCUSED_WIDGET: self._get_focused_widget,
             RIGHT_CLICK_WIDGET: self._right_click_widget,
+            GET_WIDGET_VALUE: self._get_widget_value,
+            SET_WIDGET_VALUE: self._set_widget_value,
         }
 
         handler = handlers.get(request.method)
@@ -597,3 +601,137 @@ class AgentServer:
             return True
 
         return execute_on_main_thread(self._root, _right_click)
+
+    def _get_widget_value(self, widget_id: int) -> Any:
+        """Get the value of a widget based on its type."""
+
+        def _get_value() -> Any:
+            widget = find_widget_by_id(self._root, widget_id)
+            if widget is None:
+                return None
+
+            widget_class = widget.winfo_class()
+
+            # Entry widget
+            if widget_class == "Entry":
+                return widget.get()
+
+            # Text widget
+            if widget_class == "Text":
+                return widget.get("1.0", "end-1c")
+
+            # Scale widget
+            if widget_class in ("Scale", "TScale"):
+                return float(widget.get())
+
+            # Combobox
+            if widget_class == "TCombobox":
+                return widget.get()
+
+            # Spinbox
+            if widget_class in ("Spinbox", "TSpinbox"):
+                return widget.get()
+
+            # Checkbutton - return True/False
+            if widget_class in ("Checkbutton", "TCheckbutton"):
+                try:
+                    var = widget.cget("variable")
+                    if var:
+                        value = widget.getvar(var)
+                        if isinstance(value, bool):
+                            return value
+                        if isinstance(value, int):
+                            return value == 1
+                        if isinstance(value, str):
+                            return value in ("1", "true", "True", "yes", "on")
+                except Exception:
+                    pass
+                return None
+
+            # Radiobutton - return the variable value
+            if widget_class in ("Radiobutton", "TRadiobutton"):
+                try:
+                    var = widget.cget("variable")
+                    if var:
+                        return str(widget.getvar(var))
+                except Exception:
+                    pass
+                return None
+
+            # Listbox - return selected items
+            if widget_class == "Listbox":
+                try:
+                    selection = widget.curselection()
+                    if selection:
+                        return [widget.get(i) for i in selection]
+                    return []
+                except Exception:
+                    return None
+
+            # Try generic get() method
+            if hasattr(widget, "get"):
+                try:
+                    return widget.get()
+                except Exception:
+                    pass
+
+            # Try cget("text")
+            try:
+                return widget.cget("text")
+            except Exception:
+                pass
+
+            return None
+
+        return execute_on_main_thread(self._root, _get_value)
+
+    def _set_widget_value(self, widget_id: int, value: Any) -> bool:
+        """Set the value of a widget based on its type."""
+
+        def _set_value() -> bool:
+            widget = find_widget_by_id(self._root, widget_id)
+            if widget is None:
+                return False
+
+            widget_class = widget.winfo_class()
+
+            # Entry widget
+            if widget_class == "Entry":
+                widget.delete(0, "end")
+                widget.insert(0, str(value))
+                return True
+
+            # Text widget
+            if widget_class == "Text":
+                widget.delete("1.0", "end")
+                widget.insert("1.0", str(value))
+                return True
+
+            # Scale widget
+            if widget_class in ("Scale", "TScale"):
+                widget.set(float(value))
+                return True
+
+            # Combobox
+            if widget_class == "TCombobox":
+                widget.set(str(value))
+                widget.event_generate("<<ComboboxSelected>>")
+                return True
+
+            # Spinbox
+            if widget_class in ("Spinbox", "TSpinbox"):
+                widget.delete(0, "end")
+                widget.insert(0, str(value))
+                return True
+
+            # Try generic set() method
+            if hasattr(widget, "set"):
+                try:
+                    widget.set(value)
+                    return True
+                except Exception:
+                    pass
+
+            return False
+
+        return execute_on_main_thread(self._root, _set_value)

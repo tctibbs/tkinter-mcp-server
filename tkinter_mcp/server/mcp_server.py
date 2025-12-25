@@ -591,4 +591,58 @@ def create_mcp_server() -> FastMCP:
         except RemoteBridgeError as e:
             return json.dumps({"success": False, "error": str(e)})
 
+    @mcp.tool
+    def get_widget_value(widget_id: int) -> str:
+        """Get the value of a widget based on its type.
+
+        Returns the appropriate value for the widget type:
+        - Entry/Text: text content
+        - Scale: numeric value
+        - Combobox: selected text
+        - Checkbutton: boolean (checked/unchecked)
+        - Radiobutton: variable value
+        - Listbox: list of selected item texts
+        - Spinbox: current value
+
+        Args:
+            widget_id: The widget ID from get_ui_layout()
+
+        Returns:
+            JSON with the widget value or null
+        """
+        try:
+            value = get_bridge().get_widget_value(widget_id)
+            return json.dumps(
+                {
+                    "found": value is not None,
+                    "value": value,
+                }
+            )
+        except RemoteBridgeError as e:
+            return json.dumps({"found": False, "error": str(e)})
+
+    @mcp.tool
+    def set_widget_value(widget_id: int, value: str) -> str:
+        """Set the value of a widget based on its type.
+
+        Sets the appropriate value for the widget type:
+        - Entry/Text: sets text content
+        - Scale: sets numeric value
+        - Combobox: sets selected text
+        - Spinbox: sets value
+
+        Args:
+            widget_id: The widget ID from get_ui_layout()
+            value: The value to set (converted appropriately for widget type)
+
+        Returns:
+            JSON with success status and message
+        """
+        try:
+            success = get_bridge().set_widget_value(widget_id, value)
+            msg = "Value set" if success else "Widget not found or not settable"
+            return json.dumps({"success": success, "message": msg})
+        except RemoteBridgeError as e:
+            return json.dumps({"success": False, "error": str(e)})
+
     return mcp

@@ -25,12 +25,14 @@ from tkinter_mcp.bridge.protocol import (
     GET_RADIO_VALUE,
     GET_SCALE_VALUE,
     GET_UI_LAYOUT,
+    GET_WIDGET_VALUE,
     GET_WINDOW_GEOMETRY,
     RIGHT_CLICK_WIDGET,
     SELECT_COMBOBOX,
     SELECT_LISTBOX_ITEM,
     SELECT_RADIO,
     SET_SCALE_VALUE,
+    SET_WIDGET_VALUE,
     TOGGLE_CHECKBOX,
     TYPE_TEXT,
     Request,
@@ -220,3 +222,11 @@ class RemoteBridge:
     def right_click_widget(self, widget_id: int) -> bool:
         """Right-click a widget."""
         return self._send_request(RIGHT_CLICK_WIDGET, widget_id=widget_id)
+
+    def get_widget_value(self, widget_id: int) -> Any:
+        """Get the value of a widget based on its type."""
+        return self._send_request(GET_WIDGET_VALUE, widget_id=widget_id)
+
+    def set_widget_value(self, widget_id: int, value: Any) -> bool:
+        """Set the value of a widget based on its type."""
+        return self._send_request(SET_WIDGET_VALUE, widget_id=widget_id, value=value)
