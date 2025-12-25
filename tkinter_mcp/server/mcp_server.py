@@ -354,4 +354,66 @@ def create_mcp_server() -> FastMCP:
         except RemoteBridgeError as e:
             return json.dumps({"found": False, "error": str(e)})
 
+    @mcp.tool
+    def select_combobox(widget_id: int, value: str) -> str:
+        """Select a value in a Combobox (dropdown) widget.
+
+        Sets the Combobox to the specified value. Works with ttk.Combobox.
+
+        Args:
+            widget_id: The widget ID from get_ui_layout()
+            value: The value to select (must be one of the available options)
+
+        Returns:
+            JSON with success status and message
+        """
+        try:
+            success = get_bridge().select_combobox(widget_id, value)
+            msg = "Combobox value set" if success else "Not found or not a combobox"
+            return json.dumps({"success": success, "message": msg})
+        except RemoteBridgeError as e:
+            return json.dumps({"success": False, "error": str(e)})
+
+    @mcp.tool
+    def get_combobox_value(widget_id: int) -> str:
+        """Get the current value of a Combobox widget.
+
+        Args:
+            widget_id: The widget ID from get_ui_layout()
+
+        Returns:
+            JSON with the current value or null if not a combobox
+        """
+        try:
+            value = get_bridge().get_combobox_value(widget_id)
+            return json.dumps(
+                {
+                    "found": value is not None,
+                    "value": value,
+                }
+            )
+        except RemoteBridgeError as e:
+            return json.dumps({"found": False, "error": str(e)})
+
+    @mcp.tool
+    def get_combobox_options(widget_id: int) -> str:
+        """Get the available options in a Combobox widget.
+
+        Args:
+            widget_id: The widget ID from get_ui_layout()
+
+        Returns:
+            JSON with list of available options or null if not a combobox
+        """
+        try:
+            options = get_bridge().get_combobox_options(widget_id)
+            return json.dumps(
+                {
+                    "found": options is not None,
+                    "options": options,
+                }
+            )
+        except RemoteBridgeError as e:
+            return json.dumps({"found": False, "error": str(e)})
+
     return mcp

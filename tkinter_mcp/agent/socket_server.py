@@ -17,9 +17,12 @@ from tkinter_mcp.bridge.protocol import (
     DEFAULT_PORT,
     FIND_WIDGET_BY_TEXT,
     GET_CHECKBOX_STATE,
+    GET_COMBOBOX_OPTIONS,
+    GET_COMBOBOX_VALUE,
     GET_RADIO_VALUE,
     GET_UI_LAYOUT,
     GET_WINDOW_GEOMETRY,
+    SELECT_COMBOBOX,
     SELECT_RADIO,
     TOGGLE_CHECKBOX,
     TYPE_TEXT,
@@ -150,6 +153,9 @@ class AgentServer:
             GET_CHECKBOX_STATE: self._get_checkbox_state,
             SELECT_RADIO: self._select_radio,
             GET_RADIO_VALUE: self._get_radio_value,
+            SELECT_COMBOBOX: self._select_combobox,
+            GET_COMBOBOX_VALUE: self._get_combobox_value,
+            GET_COMBOBOX_OPTIONS: self._get_combobox_options,
         }
 
         handler = handlers.get(request.method)
@@ -349,3 +355,66 @@ class AgentServer:
             return None
 
         return execute_on_main_thread(self._root, _get_value)
+
+    def _select_combobox(self, widget_id: int, value: str) -> bool:
+        """Select a value in a Combobox widget."""
+
+        def _select() -> bool:
+            widget = find_widget_by_id(self._root, widget_id)
+            if widget is None:
+                return False
+
+            widget_class = widget.winfo_class()
+            if widget_class != "TCombobox":
+                return False
+
+            try:
+                widget.set(value)
+                # Trigger any bound events
+                widget.event_generate("<<ComboboxSelected>>")
+                return True
+            except Exception:
+                return False
+
+        return execute_on_main_thread(self._root, _select)
+
+    def _get_combobox_value(self, widget_id: int) -> str | None:
+        """Get the current value of a Combobox."""
+
+        def _get_value() -> str | None:
+            widget = find_widget_by_id(self._root, widget_id)
+            if widget is None:
+                return None
+
+            widget_class = widget.winfo_class()
+            if widget_class != "TCombobox":
+                return None
+
+            try:
+                return widget.get()
+            except Exception:
+                return None
+
+        return execute_on_main_thread(self._root, _get_value)
+
+    def _get_combobox_options(self, widget_id: int) -> list[str] | None:
+        """Get the available options in a Combobox."""
+
+        def _get_options() -> list[str] | None:
+            widget = find_widget_by_id(self._root, widget_id)
+            if widget is None:
+                return None
+
+            widget_class = widget.winfo_class()
+            if widget_class != "TCombobox":
+                return None
+
+            try:
+                values = widget.cget("values")
+                if values:
+                    return list(values)
+                return []
+            except Exception:
+                return None
+
+        return execute_on_main_thread(self._root, _get_options)

@@ -15,9 +15,12 @@ from tkinter_mcp.bridge.protocol import (
     DEFAULT_PORT,
     FIND_WIDGET_BY_TEXT,
     GET_CHECKBOX_STATE,
+    GET_COMBOBOX_OPTIONS,
+    GET_COMBOBOX_VALUE,
     GET_RADIO_VALUE,
     GET_UI_LAYOUT,
     GET_WINDOW_GEOMETRY,
+    SELECT_COMBOBOX,
     SELECT_RADIO,
     TOGGLE_CHECKBOX,
     TYPE_TEXT,
@@ -160,3 +163,15 @@ class RemoteBridge:
     def get_radio_value(self, widget_id: int) -> str | None:
         """Get the current value of a Radiobutton's variable."""
         return self._send_request(GET_RADIO_VALUE, widget_id=widget_id)
+
+    def select_combobox(self, widget_id: int, value: str) -> bool:
+        """Select a value in a Combobox widget."""
+        return self._send_request(SELECT_COMBOBOX, widget_id=widget_id, value=value)
+
+    def get_combobox_value(self, widget_id: int) -> str | None:
+        """Get the current value of a Combobox."""
+        return self._send_request(GET_COMBOBOX_VALUE, widget_id=widget_id)
+
+    def get_combobox_options(self, widget_id: int) -> list[str] | None:
+        """Get the available options in a Combobox."""
+        return self._send_request(GET_COMBOBOX_OPTIONS, widget_id=widget_id)
