@@ -267,4 +267,47 @@ def create_mcp_server() -> FastMCP:
             }
         )
 
+    @mcp.tool
+    def toggle_checkbox(widget_id: int) -> str:
+        """Toggle a Checkbutton widget on or off.
+
+        Finds the Checkbutton with the given ID and toggles its state.
+        Works with both standard tk.Checkbutton and ttk.Checkbutton.
+
+        Args:
+            widget_id: The widget ID from get_ui_layout()
+
+        Returns:
+            JSON with success status and message
+        """
+        try:
+            success = get_bridge().toggle_checkbox(widget_id)
+            msg = "Checkbox toggled" if success else "Not found or not a checkbox"
+            return json.dumps({"success": success, "message": msg})
+        except RemoteBridgeError as e:
+            return json.dumps({"success": False, "error": str(e)})
+
+    @mcp.tool
+    def get_checkbox_state(widget_id: int) -> str:
+        """Get the current checked state of a Checkbutton.
+
+        Returns whether the checkbox is currently checked (True) or unchecked (False).
+
+        Args:
+            widget_id: The widget ID from get_ui_layout()
+
+        Returns:
+            JSON with checked state (true/false) or null if not a checkbox
+        """
+        try:
+            state = get_bridge().get_checkbox_state(widget_id)
+            return json.dumps(
+                {
+                    "found": state is not None,
+                    "checked": state,
+                }
+            )
+        except RemoteBridgeError as e:
+            return json.dumps({"found": False, "error": str(e)})
+
     return mcp

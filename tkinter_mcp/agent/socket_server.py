@@ -16,8 +16,10 @@ from tkinter_mcp.bridge.protocol import (
     DEFAULT_HOST,
     DEFAULT_PORT,
     FIND_WIDGET_BY_TEXT,
+    GET_CHECKBOX_STATE,
     GET_UI_LAYOUT,
     GET_WINDOW_GEOMETRY,
+    TOGGLE_CHECKBOX,
     TYPE_TEXT,
     Request,
     Response,
@@ -142,6 +144,8 @@ class AgentServer:
             TYPE_TEXT: self._type_text,
             FIND_WIDGET_BY_TEXT: self._find_widget_by_text,
             CLOSE_APP: self._close_app,
+            TOGGLE_CHECKBOX: self._toggle_checkbox,
+            GET_CHECKBOX_STATE: self._get_checkbox_state,
         }
 
         handler = handlers.get(request.method)
@@ -244,3 +248,59 @@ class AgentServer:
             return True
         except Exception:
             return False
+
+    def _toggle_checkbox(self, widget_id: int) -> bool:
+        """Toggle a Checkbutton widget."""
+
+        def _toggle() -> bool:
+            widget = find_widget_by_id(self._root, widget_id)
+            if widget is None:
+                return False
+
+            widget_class = widget.winfo_class()
+            if widget_class not in ("Checkbutton", "TCheckbutton"):
+                return False
+
+            widget.invoke()
+            return True
+
+        return execute_on_main_thread(self._root, _toggle)
+
+    def _get_checkbox_state(self, widget_id: int) -> bool | None:
+        """Get the current state of a Checkbutton widget."""
+
+        def _get_state() -> bool | None:
+            widget = find_widget_by_id(self._root, widget_id)
+            if widget is None:
+                return None
+
+            widget_class = widget.winfo_class()
+            if widget_class not in ("Checkbutton", "TCheckbutton"):
+                return None
+
+            # Try to get the variable value
+            try:
+                var = widget.cget("variable")
+                if var:
+                    # Get the variable from the widget's master
+                    value = widget.getvar(var)
+                    # Handle different variable types
+                    if isinstance(value, bool):
+                        return value
+                    if isinstance(value, int):
+                        return value == 1
+                    if isinstance(value, str):
+                        return value in ("1", "true", "True", "yes", "on")
+            except Exception:
+                pass
+
+            # Fallback: check instate for ttk
+            try:
+                if hasattr(widget, "instate"):
+                    return widget.instate(["selected"])
+            except Exception:
+                pass
+
+            return None
+
+        return execute_on_main_thread(self._root, _get_state)
