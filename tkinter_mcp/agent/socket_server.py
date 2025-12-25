@@ -17,9 +17,11 @@ from tkinter_mcp.bridge.protocol import (
     DEFAULT_PORT,
     DOUBLE_CLICK_WIDGET,
     FIND_WIDGET_BY_TEXT,
+    FOCUS_WIDGET,
     GET_CHECKBOX_STATE,
     GET_COMBOBOX_OPTIONS,
     GET_COMBOBOX_VALUE,
+    GET_FOCUSED_WIDGET,
     GET_LISTBOX_ITEMS,
     GET_LISTBOX_SELECTION,
     GET_RADIO_VALUE,
@@ -168,6 +170,8 @@ class AgentServer:
             SET_SCALE_VALUE: self._set_scale_value,
             GET_SCALE_VALUE: self._get_scale_value,
             DOUBLE_CLICK_WIDGET: self._double_click_widget,
+            FOCUS_WIDGET: self._focus_widget,
+            GET_FOCUSED_WIDGET: self._get_focused_widget,
         }
 
         handler = handlers.get(request.method)
@@ -547,3 +551,33 @@ class AgentServer:
             return True
 
         return execute_on_main_thread(self._root, _double_click)
+
+    def _focus_widget(self, widget_id: int) -> bool:
+        """Set focus to a widget."""
+
+        def _focus() -> bool:
+            widget = find_widget_by_id(self._root, widget_id)
+            if widget is None:
+                return False
+
+            try:
+                widget.focus_set()
+                return True
+            except Exception:
+                return False
+
+        return execute_on_main_thread(self._root, _focus)
+
+    def _get_focused_widget(self) -> int | None:
+        """Get the currently focused widget's ID."""
+
+        def _get_focus() -> int | None:
+            try:
+                focused = self._root.focus_get()
+                if focused is not None:
+                    return focused.winfo_id()
+            except Exception:
+                pass
+            return None
+
+        return execute_on_main_thread(self._root, _get_focus)

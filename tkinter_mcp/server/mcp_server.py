@@ -536,4 +536,39 @@ def create_mcp_server() -> FastMCP:
         except RemoteBridgeError as e:
             return json.dumps({"success": False, "error": str(e)})
 
+    @mcp.tool
+    def focus_widget(widget_id: int) -> str:
+        """Set keyboard focus to a widget.
+
+        Args:
+            widget_id: The widget ID from get_ui_layout()
+
+        Returns:
+            JSON with success status and message
+        """
+        try:
+            success = get_bridge().focus_widget(widget_id)
+            msg = "Widget focused" if success else "Widget not found"
+            return json.dumps({"success": success, "message": msg})
+        except RemoteBridgeError as e:
+            return json.dumps({"success": False, "error": str(e)})
+
+    @mcp.tool
+    def get_focused_widget() -> str:
+        """Get the currently focused widget.
+
+        Returns:
+            JSON with the focused widget's ID or null if no widget has focus
+        """
+        try:
+            widget_id = get_bridge().get_focused_widget()
+            return json.dumps(
+                {
+                    "has_focus": widget_id is not None,
+                    "widget_id": widget_id,
+                }
+            )
+        except RemoteBridgeError as e:
+            return json.dumps({"has_focus": False, "error": str(e)})
+
     return mcp

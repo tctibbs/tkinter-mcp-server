@@ -15,9 +15,11 @@ from tkinter_mcp.bridge.protocol import (
     DEFAULT_PORT,
     DOUBLE_CLICK_WIDGET,
     FIND_WIDGET_BY_TEXT,
+    FOCUS_WIDGET,
     GET_CHECKBOX_STATE,
     GET_COMBOBOX_OPTIONS,
     GET_COMBOBOX_VALUE,
+    GET_FOCUSED_WIDGET,
     GET_LISTBOX_ITEMS,
     GET_LISTBOX_SELECTION,
     GET_RADIO_VALUE,
@@ -205,3 +207,11 @@ class RemoteBridge:
     def double_click_widget(self, widget_id: int) -> bool:
         """Double-click a widget."""
         return self._send_request(DOUBLE_CLICK_WIDGET, widget_id=widget_id)
+
+    def focus_widget(self, widget_id: int) -> bool:
+        """Set focus to a widget."""
+        return self._send_request(FOCUS_WIDGET, widget_id=widget_id)
+
+    def get_focused_widget(self) -> int | None:
+        """Get the currently focused widget's ID."""
+        return self._send_request(GET_FOCUSED_WIDGET)
