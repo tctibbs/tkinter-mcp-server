@@ -478,4 +478,43 @@ def create_mcp_server() -> FastMCP:
         except RemoteBridgeError as e:
             return json.dumps({"found": False, "error": str(e)})
 
+    @mcp.tool
+    def set_scale_value(widget_id: int, value: float) -> str:
+        """Set the value of a Scale (slider) widget.
+
+        Args:
+            widget_id: The widget ID from get_ui_layout()
+            value: The value to set (must be within the scale's range)
+
+        Returns:
+            JSON with success status and message
+        """
+        try:
+            success = get_bridge().set_scale_value(widget_id, value)
+            msg = "Scale value set" if success else "Not found or not a scale"
+            return json.dumps({"success": success, "message": msg})
+        except RemoteBridgeError as e:
+            return json.dumps({"success": False, "error": str(e)})
+
+    @mcp.tool
+    def get_scale_value(widget_id: int) -> str:
+        """Get the current value of a Scale (slider) widget.
+
+        Args:
+            widget_id: The widget ID from get_ui_layout()
+
+        Returns:
+            JSON with the current value or null if not a scale
+        """
+        try:
+            value = get_bridge().get_scale_value(widget_id)
+            return json.dumps(
+                {
+                    "found": value is not None,
+                    "value": value,
+                }
+            )
+        except RemoteBridgeError as e:
+            return json.dumps({"found": False, "error": str(e)})
+
     return mcp

@@ -20,11 +20,13 @@ from tkinter_mcp.bridge.protocol import (
     GET_LISTBOX_ITEMS,
     GET_LISTBOX_SELECTION,
     GET_RADIO_VALUE,
+    GET_SCALE_VALUE,
     GET_UI_LAYOUT,
     GET_WINDOW_GEOMETRY,
     SELECT_COMBOBOX,
     SELECT_LISTBOX_ITEM,
     SELECT_RADIO,
+    SET_SCALE_VALUE,
     TOGGLE_CHECKBOX,
     TYPE_TEXT,
     Request,
@@ -190,3 +192,11 @@ class RemoteBridge:
     def get_listbox_selection(self, widget_id: int) -> list[int] | None:
         """Get the indices of selected items in a Listbox."""
         return self._send_request(GET_LISTBOX_SELECTION, widget_id=widget_id)
+
+    def set_scale_value(self, widget_id: int, value: float) -> bool:
+        """Set the value of a Scale widget."""
+        return self._send_request(SET_SCALE_VALUE, widget_id=widget_id, value=value)
+
+    def get_scale_value(self, widget_id: int) -> float | None:
+        """Get the current value of a Scale widget."""
+        return self._send_request(GET_SCALE_VALUE, widget_id=widget_id)

@@ -22,11 +22,13 @@ from tkinter_mcp.bridge.protocol import (
     GET_LISTBOX_ITEMS,
     GET_LISTBOX_SELECTION,
     GET_RADIO_VALUE,
+    GET_SCALE_VALUE,
     GET_UI_LAYOUT,
     GET_WINDOW_GEOMETRY,
     SELECT_COMBOBOX,
     SELECT_LISTBOX_ITEM,
     SELECT_RADIO,
+    SET_SCALE_VALUE,
     TOGGLE_CHECKBOX,
     TYPE_TEXT,
     Request,
@@ -162,6 +164,8 @@ class AgentServer:
             SELECT_LISTBOX_ITEM: self._select_listbox_item,
             GET_LISTBOX_ITEMS: self._get_listbox_items,
             GET_LISTBOX_SELECTION: self._get_listbox_selection,
+            SET_SCALE_VALUE: self._set_scale_value,
+            GET_SCALE_VALUE: self._get_scale_value,
         }
 
         handler = handlers.get(request.method)
@@ -485,3 +489,42 @@ class AgentServer:
                 return None
 
         return execute_on_main_thread(self._root, _get_selection)
+
+    def _set_scale_value(self, widget_id: int, value: float) -> bool:
+        """Set the value of a Scale widget."""
+
+        def _set_value() -> bool:
+            widget = find_widget_by_id(self._root, widget_id)
+            if widget is None:
+                return False
+
+            widget_class = widget.winfo_class()
+            if widget_class not in ("Scale", "TScale"):
+                return False
+
+            try:
+                widget.set(value)
+                return True
+            except Exception:
+                return False
+
+        return execute_on_main_thread(self._root, _set_value)
+
+    def _get_scale_value(self, widget_id: int) -> float | None:
+        """Get the current value of a Scale widget."""
+
+        def _get_value() -> float | None:
+            widget = find_widget_by_id(self._root, widget_id)
+            if widget is None:
+                return None
+
+            widget_class = widget.winfo_class()
+            if widget_class not in ("Scale", "TScale"):
+                return None
+
+            try:
+                return float(widget.get())
+            except Exception:
+                return None
+
+        return execute_on_main_thread(self._root, _get_value)
