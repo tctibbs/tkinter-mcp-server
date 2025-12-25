@@ -15,8 +15,10 @@ from tkinter_mcp.bridge.protocol import (
     DEFAULT_PORT,
     FIND_WIDGET_BY_TEXT,
     GET_CHECKBOX_STATE,
+    GET_RADIO_VALUE,
     GET_UI_LAYOUT,
     GET_WINDOW_GEOMETRY,
+    SELECT_RADIO,
     TOGGLE_CHECKBOX,
     TYPE_TEXT,
     Request,
@@ -150,3 +152,11 @@ class RemoteBridge:
     def get_checkbox_state(self, widget_id: int) -> bool | None:
         """Get the current state of a Checkbutton."""
         return self._send_request(GET_CHECKBOX_STATE, widget_id=widget_id)
+
+    def select_radio(self, widget_id: int) -> bool:
+        """Select a Radiobutton widget."""
+        return self._send_request(SELECT_RADIO, widget_id=widget_id)
+
+    def get_radio_value(self, widget_id: int) -> str | None:
+        """Get the current value of a Radiobutton's variable."""
+        return self._send_request(GET_RADIO_VALUE, widget_id=widget_id)

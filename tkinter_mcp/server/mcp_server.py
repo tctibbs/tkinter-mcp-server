@@ -310,4 +310,48 @@ def create_mcp_server() -> FastMCP:
         except RemoteBridgeError as e:
             return json.dumps({"found": False, "error": str(e)})
 
+    @mcp.tool
+    def select_radio(widget_id: int) -> str:
+        """Select a Radiobutton widget.
+
+        Finds the Radiobutton with the given ID and selects it.
+        Works with both standard tk.Radiobutton and ttk.Radiobutton.
+
+        Args:
+            widget_id: The widget ID from get_ui_layout()
+
+        Returns:
+            JSON with success status and message
+        """
+        try:
+            success = get_bridge().select_radio(widget_id)
+            msg = "Radio selected" if success else "Not found or not a radiobutton"
+            return json.dumps({"success": success, "message": msg})
+        except RemoteBridgeError as e:
+            return json.dumps({"success": False, "error": str(e)})
+
+    @mcp.tool
+    def get_radio_value(widget_id: int) -> str:
+        """Get the current value of the variable associated with a Radiobutton.
+
+        Returns the current value of the shared variable, indicating which
+        radio button in the group is selected.
+
+        Args:
+            widget_id: The widget ID from get_ui_layout()
+
+        Returns:
+            JSON with the current value or null if not a radiobutton
+        """
+        try:
+            value = get_bridge().get_radio_value(widget_id)
+            return json.dumps(
+                {
+                    "found": value is not None,
+                    "value": value,
+                }
+            )
+        except RemoteBridgeError as e:
+            return json.dumps({"found": False, "error": str(e)})
+
     return mcp

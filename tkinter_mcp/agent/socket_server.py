@@ -17,8 +17,10 @@ from tkinter_mcp.bridge.protocol import (
     DEFAULT_PORT,
     FIND_WIDGET_BY_TEXT,
     GET_CHECKBOX_STATE,
+    GET_RADIO_VALUE,
     GET_UI_LAYOUT,
     GET_WINDOW_GEOMETRY,
+    SELECT_RADIO,
     TOGGLE_CHECKBOX,
     TYPE_TEXT,
     Request,
@@ -146,6 +148,8 @@ class AgentServer:
             CLOSE_APP: self._close_app,
             TOGGLE_CHECKBOX: self._toggle_checkbox,
             GET_CHECKBOX_STATE: self._get_checkbox_state,
+            SELECT_RADIO: self._select_radio,
+            GET_RADIO_VALUE: self._get_radio_value,
         }
 
         handler = handlers.get(request.method)
@@ -304,3 +308,44 @@ class AgentServer:
             return None
 
         return execute_on_main_thread(self._root, _get_state)
+
+    def _select_radio(self, widget_id: int) -> bool:
+        """Select a Radiobutton widget."""
+
+        def _select() -> bool:
+            widget = find_widget_by_id(self._root, widget_id)
+            if widget is None:
+                return False
+
+            widget_class = widget.winfo_class()
+            if widget_class not in ("Radiobutton", "TRadiobutton"):
+                return False
+
+            widget.invoke()
+            return True
+
+        return execute_on_main_thread(self._root, _select)
+
+    def _get_radio_value(self, widget_id: int) -> str | None:
+        """Get the current value of a Radiobutton's variable."""
+
+        def _get_value() -> str | None:
+            widget = find_widget_by_id(self._root, widget_id)
+            if widget is None:
+                return None
+
+            widget_class = widget.winfo_class()
+            if widget_class not in ("Radiobutton", "TRadiobutton"):
+                return None
+
+            try:
+                var = widget.cget("variable")
+                if var:
+                    value = widget.getvar(var)
+                    return str(value) if value is not None else None
+            except Exception:
+                pass
+
+            return None
+
+        return execute_on_main_thread(self._root, _get_value)
