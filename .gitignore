@@ -48,3 +48,9 @@ Thumbs.db
 # Local config
 .mcp.json
 .claude/
+
+# Lock files (use pyproject.toml)
+uv.lock
+
+# Demo/example files
+demo.py
