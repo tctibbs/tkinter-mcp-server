@@ -26,6 +26,7 @@ from tkinter_mcp.bridge.protocol import (
     GET_SCALE_VALUE,
     GET_UI_LAYOUT,
     GET_WINDOW_GEOMETRY,
+    RIGHT_CLICK_WIDGET,
     SELECT_COMBOBOX,
     SELECT_LISTBOX_ITEM,
     SELECT_RADIO,
@@ -215,3 +216,7 @@ class RemoteBridge:
     def get_focused_widget(self) -> int | None:
         """Get the currently focused widget's ID."""
         return self._send_request(GET_FOCUSED_WIDGET)
+
+    def right_click_widget(self, widget_id: int) -> bool:
+        """Right-click a widget."""
+        return self._send_request(RIGHT_CLICK_WIDGET, widget_id=widget_id)

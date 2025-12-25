@@ -571,4 +571,24 @@ def create_mcp_server() -> FastMCP:
         except RemoteBridgeError as e:
             return json.dumps({"has_focus": False, "error": str(e)})
 
+    @mcp.tool
+    def right_click_widget(widget_id: int) -> str:
+        """Right-click a widget.
+
+        Generates a right-click (Button-3) event on the widget.
+        Useful for triggering context menus.
+
+        Args:
+            widget_id: The widget ID from get_ui_layout()
+
+        Returns:
+            JSON with success status and message
+        """
+        try:
+            success = get_bridge().right_click_widget(widget_id)
+            msg = "Widget right-clicked" if success else "Widget not found"
+            return json.dumps({"success": success, "message": msg})
+        except RemoteBridgeError as e:
+            return json.dumps({"success": False, "error": str(e)})
+
     return mcp

@@ -28,6 +28,7 @@ from tkinter_mcp.bridge.protocol import (
     GET_SCALE_VALUE,
     GET_UI_LAYOUT,
     GET_WINDOW_GEOMETRY,
+    RIGHT_CLICK_WIDGET,
     SELECT_COMBOBOX,
     SELECT_LISTBOX_ITEM,
     SELECT_RADIO,
@@ -172,6 +173,7 @@ class AgentServer:
             DOUBLE_CLICK_WIDGET: self._double_click_widget,
             FOCUS_WIDGET: self._focus_widget,
             GET_FOCUSED_WIDGET: self._get_focused_widget,
+            RIGHT_CLICK_WIDGET: self._right_click_widget,
         }
 
         handler = handlers.get(request.method)
@@ -581,3 +583,17 @@ class AgentServer:
             return None
 
         return execute_on_main_thread(self._root, _get_focus)
+
+    def _right_click_widget(self, widget_id: int) -> bool:
+        """Right-click a widget."""
+
+        def _right_click() -> bool:
+            widget = find_widget_by_id(self._root, widget_id)
+            if widget is None:
+                return False
+
+            widget.event_generate("<Button-3>")
+            widget.event_generate("<ButtonRelease-3>")
+            return True
+
+        return execute_on_main_thread(self._root, _right_click)
