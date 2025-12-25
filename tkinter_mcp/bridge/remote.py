@@ -17,10 +17,13 @@ from tkinter_mcp.bridge.protocol import (
     GET_CHECKBOX_STATE,
     GET_COMBOBOX_OPTIONS,
     GET_COMBOBOX_VALUE,
+    GET_LISTBOX_ITEMS,
+    GET_LISTBOX_SELECTION,
     GET_RADIO_VALUE,
     GET_UI_LAYOUT,
     GET_WINDOW_GEOMETRY,
     SELECT_COMBOBOX,
+    SELECT_LISTBOX_ITEM,
     SELECT_RADIO,
     TOGGLE_CHECKBOX,
     TYPE_TEXT,
@@ -175,3 +178,15 @@ class RemoteBridge:
     def get_combobox_options(self, widget_id: int) -> list[str] | None:
         """Get the available options in a Combobox."""
         return self._send_request(GET_COMBOBOX_OPTIONS, widget_id=widget_id)
+
+    def select_listbox_item(self, widget_id: int, index: int) -> bool:
+        """Select an item in a Listbox by index."""
+        return self._send_request(SELECT_LISTBOX_ITEM, widget_id=widget_id, index=index)
+
+    def get_listbox_items(self, widget_id: int) -> list[str] | None:
+        """Get all items in a Listbox."""
+        return self._send_request(GET_LISTBOX_ITEMS, widget_id=widget_id)
+
+    def get_listbox_selection(self, widget_id: int) -> list[int] | None:
+        """Get the indices of selected items in a Listbox."""
+        return self._send_request(GET_LISTBOX_SELECTION, widget_id=widget_id)

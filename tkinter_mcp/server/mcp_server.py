@@ -416,4 +416,66 @@ def create_mcp_server() -> FastMCP:
         except RemoteBridgeError as e:
             return json.dumps({"found": False, "error": str(e)})
 
+    @mcp.tool
+    def select_listbox_item(widget_id: int, index: int) -> str:
+        """Select an item in a Listbox by its index.
+
+        Clears any existing selection and selects the item at the given index.
+
+        Args:
+            widget_id: The widget ID from get_ui_layout()
+            index: Zero-based index of the item to select
+
+        Returns:
+            JSON with success status and message
+        """
+        try:
+            success = get_bridge().select_listbox_item(widget_id, index)
+            msg = "Item selected" if success else "Not found or not a listbox"
+            return json.dumps({"success": success, "message": msg})
+        except RemoteBridgeError as e:
+            return json.dumps({"success": False, "error": str(e)})
+
+    @mcp.tool
+    def get_listbox_items(widget_id: int) -> str:
+        """Get all items in a Listbox widget.
+
+        Args:
+            widget_id: The widget ID from get_ui_layout()
+
+        Returns:
+            JSON with list of items or null if not a listbox
+        """
+        try:
+            items = get_bridge().get_listbox_items(widget_id)
+            return json.dumps(
+                {
+                    "found": items is not None,
+                    "items": items,
+                }
+            )
+        except RemoteBridgeError as e:
+            return json.dumps({"found": False, "error": str(e)})
+
+    @mcp.tool
+    def get_listbox_selection(widget_id: int) -> str:
+        """Get the currently selected item indices in a Listbox.
+
+        Args:
+            widget_id: The widget ID from get_ui_layout()
+
+        Returns:
+            JSON with list of selected indices or null if not a listbox
+        """
+        try:
+            selection = get_bridge().get_listbox_selection(widget_id)
+            return json.dumps(
+                {
+                    "found": selection is not None,
+                    "selected_indices": selection,
+                }
+            )
+        except RemoteBridgeError as e:
+            return json.dumps({"found": False, "error": str(e)})
+
     return mcp

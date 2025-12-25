@@ -19,10 +19,13 @@ from tkinter_mcp.bridge.protocol import (
     GET_CHECKBOX_STATE,
     GET_COMBOBOX_OPTIONS,
     GET_COMBOBOX_VALUE,
+    GET_LISTBOX_ITEMS,
+    GET_LISTBOX_SELECTION,
     GET_RADIO_VALUE,
     GET_UI_LAYOUT,
     GET_WINDOW_GEOMETRY,
     SELECT_COMBOBOX,
+    SELECT_LISTBOX_ITEM,
     SELECT_RADIO,
     TOGGLE_CHECKBOX,
     TYPE_TEXT,
@@ -156,6 +159,9 @@ class AgentServer:
             SELECT_COMBOBOX: self._select_combobox,
             GET_COMBOBOX_VALUE: self._get_combobox_value,
             GET_COMBOBOX_OPTIONS: self._get_combobox_options,
+            SELECT_LISTBOX_ITEM: self._select_listbox_item,
+            GET_LISTBOX_ITEMS: self._get_listbox_items,
+            GET_LISTBOX_SELECTION: self._get_listbox_selection,
         }
 
         handler = handlers.get(request.method)
@@ -418,3 +424,64 @@ class AgentServer:
                 return None
 
         return execute_on_main_thread(self._root, _get_options)
+
+    def _select_listbox_item(self, widget_id: int, index: int) -> bool:
+        """Select an item in a Listbox by index."""
+
+        def _select() -> bool:
+            widget = find_widget_by_id(self._root, widget_id)
+            if widget is None:
+                return False
+
+            widget_class = widget.winfo_class()
+            if widget_class != "Listbox":
+                return False
+
+            try:
+                widget.selection_clear(0, "end")
+                widget.selection_set(index)
+                widget.activate(index)
+                widget.event_generate("<<ListboxSelect>>")
+                return True
+            except Exception:
+                return False
+
+        return execute_on_main_thread(self._root, _select)
+
+    def _get_listbox_items(self, widget_id: int) -> list[str] | None:
+        """Get all items in a Listbox."""
+
+        def _get_items() -> list[str] | None:
+            widget = find_widget_by_id(self._root, widget_id)
+            if widget is None:
+                return None
+
+            widget_class = widget.winfo_class()
+            if widget_class != "Listbox":
+                return None
+
+            try:
+                return list(widget.get(0, "end"))
+            except Exception:
+                return None
+
+        return execute_on_main_thread(self._root, _get_items)
+
+    def _get_listbox_selection(self, widget_id: int) -> list[int] | None:
+        """Get the indices of selected items in a Listbox."""
+
+        def _get_selection() -> list[int] | None:
+            widget = find_widget_by_id(self._root, widget_id)
+            if widget is None:
+                return None
+
+            widget_class = widget.winfo_class()
+            if widget_class != "Listbox":
+                return None
+
+            try:
+                return list(widget.curselection())
+            except Exception:
+                return None
+
+        return execute_on_main_thread(self._root, _get_selection)
