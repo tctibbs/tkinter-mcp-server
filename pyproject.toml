@@ -1,0 +1,53 @@
+[project]
+name = "tkinter-mcp-server"
+version = "0.1.0"
+description = "MCP server for observing and interacting with Tkinter GUIs"
+authors = [{ name = "Tristan Tibbs" }]
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = [
+    "fastmcp>=2.0.0",
+    "pyautogui>=0.9.54",
+    "pillow>=10.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-mock>=3.10.0",
+    "ruff>=0.1.0",
+]
+
+[project.scripts]
+tkinter-mcp = "tkinter_mcp.main:main"
+tkinter-mcp-launch = "tkinter_mcp.launcher:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["tkinter_mcp"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = [
+    "--cov=tkinter_mcp",
+    "--cov-report=term-missing",
+]
+markers = [
+    "unit: unit tests",
+    "integration: integration tests",
+]
+
+[tool.coverage.run]
+source = ["tkinter_mcp"]
+omit = ["*/tests/*"]
