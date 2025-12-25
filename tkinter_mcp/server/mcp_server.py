@@ -517,4 +517,23 @@ def create_mcp_server() -> FastMCP:
         except RemoteBridgeError as e:
             return json.dumps({"found": False, "error": str(e)})
 
+    @mcp.tool
+    def double_click_widget(widget_id: int) -> str:
+        """Double-click a widget.
+
+        Generates a double-click event on the widget.
+
+        Args:
+            widget_id: The widget ID from get_ui_layout()
+
+        Returns:
+            JSON with success status and message
+        """
+        try:
+            success = get_bridge().double_click_widget(widget_id)
+            msg = "Widget double-clicked" if success else "Widget not found"
+            return json.dumps({"success": success, "message": msg})
+        except RemoteBridgeError as e:
+            return json.dumps({"success": False, "error": str(e)})
+
     return mcp

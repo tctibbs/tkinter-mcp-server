@@ -13,6 +13,7 @@ from tkinter_mcp.bridge.protocol import (
     CLOSE_APP,
     DEFAULT_HOST,
     DEFAULT_PORT,
+    DOUBLE_CLICK_WIDGET,
     FIND_WIDGET_BY_TEXT,
     GET_CHECKBOX_STATE,
     GET_COMBOBOX_OPTIONS,
@@ -200,3 +201,7 @@ class RemoteBridge:
     def get_scale_value(self, widget_id: int) -> float | None:
         """Get the current value of a Scale widget."""
         return self._send_request(GET_SCALE_VALUE, widget_id=widget_id)
+
+    def double_click_widget(self, widget_id: int) -> bool:
+        """Double-click a widget."""
+        return self._send_request(DOUBLE_CLICK_WIDGET, widget_id=widget_id)

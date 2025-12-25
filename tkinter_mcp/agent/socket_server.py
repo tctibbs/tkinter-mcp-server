@@ -15,6 +15,7 @@ from tkinter_mcp.bridge.protocol import (
     CLOSE_APP,
     DEFAULT_HOST,
     DEFAULT_PORT,
+    DOUBLE_CLICK_WIDGET,
     FIND_WIDGET_BY_TEXT,
     GET_CHECKBOX_STATE,
     GET_COMBOBOX_OPTIONS,
@@ -166,6 +167,7 @@ class AgentServer:
             GET_LISTBOX_SELECTION: self._get_listbox_selection,
             SET_SCALE_VALUE: self._set_scale_value,
             GET_SCALE_VALUE: self._get_scale_value,
+            DOUBLE_CLICK_WIDGET: self._double_click_widget,
         }
 
         handler = handlers.get(request.method)
@@ -528,3 +530,20 @@ class AgentServer:
                 return None
 
         return execute_on_main_thread(self._root, _get_value)
+
+    def _double_click_widget(self, widget_id: int) -> bool:
+        """Double-click a widget."""
+
+        def _double_click() -> bool:
+            widget = find_widget_by_id(self._root, widget_id)
+            if widget is None:
+                return False
+
+            widget.event_generate("<Button-1>")
+            widget.event_generate("<ButtonRelease-1>")
+            widget.event_generate("<Button-1>")
+            widget.event_generate("<ButtonRelease-1>")
+            widget.event_generate("<Double-Button-1>")
+            return True
+
+        return execute_on_main_thread(self._root, _double_click)
