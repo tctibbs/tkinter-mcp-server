@@ -159,7 +159,11 @@ def create_mcp_server() -> FastMCP:
             return json.dumps({"error": str(e)})
 
     @mcp.tool
-    def click_widget(widget_id: int) -> str:
+    def click_widget(
+        widget_id: int,
+        button: str = "left",
+        double: bool = False,
+    ) -> str:
         """Click a widget by its ID.
 
         Finds the widget with the given ID and triggers a click action.
@@ -168,12 +172,14 @@ def create_mcp_server() -> FastMCP:
 
         Args:
             widget_id: The widget ID from get_ui_layout()
+            button: Mouse button - "left", "right", or "middle"
+            double: If True, perform a double-click
 
         Returns:
             JSON with success status and message
         """
         try:
-            success = get_bridge().click_widget(widget_id)
+            success = get_bridge().click_widget(widget_id, button, double)
             return json.dumps(
                 {
                     "success": success,
@@ -272,275 +278,6 @@ def create_mcp_server() -> FastMCP:
         )
 
     @mcp.tool
-    def toggle_checkbox(widget_id: int) -> str:
-        """Toggle a Checkbutton widget on or off.
-
-        Finds the Checkbutton with the given ID and toggles its state.
-        Works with both standard tk.Checkbutton and ttk.Checkbutton.
-
-        Args:
-            widget_id: The widget ID from get_ui_layout()
-
-        Returns:
-            JSON with success status and message
-        """
-        try:
-            success = get_bridge().toggle_checkbox(widget_id)
-            msg = "Checkbox toggled" if success else "Not found or not a checkbox"
-            return json.dumps({"success": success, "message": msg})
-        except RemoteBridgeError as e:
-            return json.dumps({"success": False, "error": str(e)})
-
-    @mcp.tool
-    def get_checkbox_state(widget_id: int) -> str:
-        """Get the current checked state of a Checkbutton.
-
-        Returns whether the checkbox is currently checked (True) or unchecked (False).
-
-        Args:
-            widget_id: The widget ID from get_ui_layout()
-
-        Returns:
-            JSON with checked state (true/false) or null if not a checkbox
-        """
-        try:
-            state = get_bridge().get_checkbox_state(widget_id)
-            return json.dumps(
-                {
-                    "found": state is not None,
-                    "checked": state,
-                }
-            )
-        except RemoteBridgeError as e:
-            return json.dumps({"found": False, "error": str(e)})
-
-    @mcp.tool
-    def select_radio(widget_id: int) -> str:
-        """Select a Radiobutton widget.
-
-        Finds the Radiobutton with the given ID and selects it.
-        Works with both standard tk.Radiobutton and ttk.Radiobutton.
-
-        Args:
-            widget_id: The widget ID from get_ui_layout()
-
-        Returns:
-            JSON with success status and message
-        """
-        try:
-            success = get_bridge().select_radio(widget_id)
-            msg = "Radio selected" if success else "Not found or not a radiobutton"
-            return json.dumps({"success": success, "message": msg})
-        except RemoteBridgeError as e:
-            return json.dumps({"success": False, "error": str(e)})
-
-    @mcp.tool
-    def get_radio_value(widget_id: int) -> str:
-        """Get the current value of the variable associated with a Radiobutton.
-
-        Returns the current value of the shared variable, indicating which
-        radio button in the group is selected.
-
-        Args:
-            widget_id: The widget ID from get_ui_layout()
-
-        Returns:
-            JSON with the current value or null if not a radiobutton
-        """
-        try:
-            value = get_bridge().get_radio_value(widget_id)
-            return json.dumps(
-                {
-                    "found": value is not None,
-                    "value": value,
-                }
-            )
-        except RemoteBridgeError as e:
-            return json.dumps({"found": False, "error": str(e)})
-
-    @mcp.tool
-    def select_combobox(widget_id: int, value: str) -> str:
-        """Select a value in a Combobox (dropdown) widget.
-
-        Sets the Combobox to the specified value. Works with ttk.Combobox.
-
-        Args:
-            widget_id: The widget ID from get_ui_layout()
-            value: The value to select (must be one of the available options)
-
-        Returns:
-            JSON with success status and message
-        """
-        try:
-            success = get_bridge().select_combobox(widget_id, value)
-            msg = "Combobox value set" if success else "Not found or not a combobox"
-            return json.dumps({"success": success, "message": msg})
-        except RemoteBridgeError as e:
-            return json.dumps({"success": False, "error": str(e)})
-
-    @mcp.tool
-    def get_combobox_value(widget_id: int) -> str:
-        """Get the current value of a Combobox widget.
-
-        Args:
-            widget_id: The widget ID from get_ui_layout()
-
-        Returns:
-            JSON with the current value or null if not a combobox
-        """
-        try:
-            value = get_bridge().get_combobox_value(widget_id)
-            return json.dumps(
-                {
-                    "found": value is not None,
-                    "value": value,
-                }
-            )
-        except RemoteBridgeError as e:
-            return json.dumps({"found": False, "error": str(e)})
-
-    @mcp.tool
-    def get_combobox_options(widget_id: int) -> str:
-        """Get the available options in a Combobox widget.
-
-        Args:
-            widget_id: The widget ID from get_ui_layout()
-
-        Returns:
-            JSON with list of available options or null if not a combobox
-        """
-        try:
-            options = get_bridge().get_combobox_options(widget_id)
-            return json.dumps(
-                {
-                    "found": options is not None,
-                    "options": options,
-                }
-            )
-        except RemoteBridgeError as e:
-            return json.dumps({"found": False, "error": str(e)})
-
-    @mcp.tool
-    def select_listbox_item(widget_id: int, index: int) -> str:
-        """Select an item in a Listbox by its index.
-
-        Clears any existing selection and selects the item at the given index.
-
-        Args:
-            widget_id: The widget ID from get_ui_layout()
-            index: Zero-based index of the item to select
-
-        Returns:
-            JSON with success status and message
-        """
-        try:
-            success = get_bridge().select_listbox_item(widget_id, index)
-            msg = "Item selected" if success else "Not found or not a listbox"
-            return json.dumps({"success": success, "message": msg})
-        except RemoteBridgeError as e:
-            return json.dumps({"success": False, "error": str(e)})
-
-    @mcp.tool
-    def get_listbox_items(widget_id: int) -> str:
-        """Get all items in a Listbox widget.
-
-        Args:
-            widget_id: The widget ID from get_ui_layout()
-
-        Returns:
-            JSON with list of items or null if not a listbox
-        """
-        try:
-            items = get_bridge().get_listbox_items(widget_id)
-            return json.dumps(
-                {
-                    "found": items is not None,
-                    "items": items,
-                }
-            )
-        except RemoteBridgeError as e:
-            return json.dumps({"found": False, "error": str(e)})
-
-    @mcp.tool
-    def get_listbox_selection(widget_id: int) -> str:
-        """Get the currently selected item indices in a Listbox.
-
-        Args:
-            widget_id: The widget ID from get_ui_layout()
-
-        Returns:
-            JSON with list of selected indices or null if not a listbox
-        """
-        try:
-            selection = get_bridge().get_listbox_selection(widget_id)
-            return json.dumps(
-                {
-                    "found": selection is not None,
-                    "selected_indices": selection,
-                }
-            )
-        except RemoteBridgeError as e:
-            return json.dumps({"found": False, "error": str(e)})
-
-    @mcp.tool
-    def set_scale_value(widget_id: int, value: float) -> str:
-        """Set the value of a Scale (slider) widget.
-
-        Args:
-            widget_id: The widget ID from get_ui_layout()
-            value: The value to set (must be within the scale's range)
-
-        Returns:
-            JSON with success status and message
-        """
-        try:
-            success = get_bridge().set_scale_value(widget_id, value)
-            msg = "Scale value set" if success else "Not found or not a scale"
-            return json.dumps({"success": success, "message": msg})
-        except RemoteBridgeError as e:
-            return json.dumps({"success": False, "error": str(e)})
-
-    @mcp.tool
-    def get_scale_value(widget_id: int) -> str:
-        """Get the current value of a Scale (slider) widget.
-
-        Args:
-            widget_id: The widget ID from get_ui_layout()
-
-        Returns:
-            JSON with the current value or null if not a scale
-        """
-        try:
-            value = get_bridge().get_scale_value(widget_id)
-            return json.dumps(
-                {
-                    "found": value is not None,
-                    "value": value,
-                }
-            )
-        except RemoteBridgeError as e:
-            return json.dumps({"found": False, "error": str(e)})
-
-    @mcp.tool
-    def double_click_widget(widget_id: int) -> str:
-        """Double-click a widget.
-
-        Generates a double-click event on the widget.
-
-        Args:
-            widget_id: The widget ID from get_ui_layout()
-
-        Returns:
-            JSON with success status and message
-        """
-        try:
-            success = get_bridge().double_click_widget(widget_id)
-            msg = "Widget double-clicked" if success else "Widget not found"
-            return json.dumps({"success": success, "message": msg})
-        except RemoteBridgeError as e:
-            return json.dumps({"success": False, "error": str(e)})
-
-    @mcp.tool
     def focus_widget(widget_id: int) -> str:
         """Set keyboard focus to a widget.
 
@@ -574,26 +311,6 @@ def create_mcp_server() -> FastMCP:
             )
         except RemoteBridgeError as e:
             return json.dumps({"has_focus": False, "error": str(e)})
-
-    @mcp.tool
-    def right_click_widget(widget_id: int) -> str:
-        """Right-click a widget.
-
-        Generates a right-click (Button-3) event on the widget.
-        Useful for triggering context menus.
-
-        Args:
-            widget_id: The widget ID from get_ui_layout()
-
-        Returns:
-            JSON with success status and message
-        """
-        try:
-            success = get_bridge().right_click_widget(widget_id)
-            msg = "Widget right-clicked" if success else "Widget not found"
-            return json.dumps({"success": success, "message": msg})
-        except RemoteBridgeError as e:
-            return json.dumps({"success": False, "error": str(e)})
 
     @mcp.tool
     def get_widget_value(widget_id: int) -> str:
@@ -631,8 +348,11 @@ def create_mcp_server() -> FastMCP:
 
         Sets the appropriate value for the widget type:
         - Entry/Text: sets text content
-        - Scale: sets numeric value
+        - Scale: sets numeric value (e.g., "50.0")
         - Combobox: sets selected text
+        - Checkbutton: sets checked state ("true"/"false")
+        - Radiobutton: selects this radio button (value ignored)
+        - Listbox: selects item by index (e.g., "0", "1")
         - Spinbox: sets value
 
         Args:
@@ -648,5 +368,28 @@ def create_mcp_server() -> FastMCP:
             return json.dumps({"success": success, "message": msg})
         except RemoteBridgeError as e:
             return json.dumps({"success": False, "error": str(e)})
+
+    @mcp.tool
+    def get_widget_options(widget_id: int) -> str:
+        """Get available options for a Combobox or Listbox widget.
+
+        Returns the list of selectable options/items.
+
+        Args:
+            widget_id: The widget ID from get_ui_layout()
+
+        Returns:
+            JSON with list of options or null if not a Combobox/Listbox
+        """
+        try:
+            options = get_bridge().get_widget_options(widget_id)
+            return json.dumps(
+                {
+                    "found": options is not None,
+                    "options": options,
+                }
+            )
+        except RemoteBridgeError as e:
+            return json.dumps({"found": False, "error": str(e)})
 
     return mcp

@@ -13,27 +13,14 @@ from tkinter_mcp.bridge.protocol import (
     CLOSE_APP,
     DEFAULT_HOST,
     DEFAULT_PORT,
-    DOUBLE_CLICK_WIDGET,
     FIND_WIDGET_BY_TEXT,
     FOCUS_WIDGET,
-    GET_CHECKBOX_STATE,
-    GET_COMBOBOX_OPTIONS,
-    GET_COMBOBOX_VALUE,
     GET_FOCUSED_WIDGET,
-    GET_LISTBOX_ITEMS,
-    GET_LISTBOX_SELECTION,
-    GET_RADIO_VALUE,
-    GET_SCALE_VALUE,
     GET_UI_LAYOUT,
+    GET_WIDGET_OPTIONS,
     GET_WIDGET_VALUE,
     GET_WINDOW_GEOMETRY,
-    RIGHT_CLICK_WIDGET,
-    SELECT_COMBOBOX,
-    SELECT_LISTBOX_ITEM,
-    SELECT_RADIO,
-    SET_SCALE_VALUE,
     SET_WIDGET_VALUE,
-    TOGGLE_CHECKBOX,
     TYPE_TEXT,
     Request,
     Response,
@@ -146,9 +133,25 @@ class RemoteBridge:
         """Get window position and size."""
         return self._send_request(GET_WINDOW_GEOMETRY)
 
-    def click_widget(self, widget_id: int) -> bool:
-        """Click a widget by ID."""
-        return self._send_request(CLICK_WIDGET, widget_id=widget_id)
+    def click_widget(
+        self,
+        widget_id: int,
+        button: str = "left",
+        double: bool = False,
+    ) -> bool:
+        """Click a widget by ID.
+
+        Args:
+            widget_id: The widget ID to click
+            button: Mouse button - "left", "right", or "middle"
+            double: If True, perform a double-click
+        """
+        return self._send_request(
+            CLICK_WIDGET,
+            widget_id=widget_id,
+            button=button,
+            double=double,
+        )
 
     def type_text(self, widget_id: int, text: str) -> bool:
         """Type text into a widget."""
@@ -167,58 +170,6 @@ class RemoteBridge:
         except RemoteBridgeError:
             return False
 
-    def toggle_checkbox(self, widget_id: int) -> bool:
-        """Toggle a Checkbutton widget."""
-        return self._send_request(TOGGLE_CHECKBOX, widget_id=widget_id)
-
-    def get_checkbox_state(self, widget_id: int) -> bool | None:
-        """Get the current state of a Checkbutton."""
-        return self._send_request(GET_CHECKBOX_STATE, widget_id=widget_id)
-
-    def select_radio(self, widget_id: int) -> bool:
-        """Select a Radiobutton widget."""
-        return self._send_request(SELECT_RADIO, widget_id=widget_id)
-
-    def get_radio_value(self, widget_id: int) -> str | None:
-        """Get the current value of a Radiobutton's variable."""
-        return self._send_request(GET_RADIO_VALUE, widget_id=widget_id)
-
-    def select_combobox(self, widget_id: int, value: str) -> bool:
-        """Select a value in a Combobox widget."""
-        return self._send_request(SELECT_COMBOBOX, widget_id=widget_id, value=value)
-
-    def get_combobox_value(self, widget_id: int) -> str | None:
-        """Get the current value of a Combobox."""
-        return self._send_request(GET_COMBOBOX_VALUE, widget_id=widget_id)
-
-    def get_combobox_options(self, widget_id: int) -> list[str] | None:
-        """Get the available options in a Combobox."""
-        return self._send_request(GET_COMBOBOX_OPTIONS, widget_id=widget_id)
-
-    def select_listbox_item(self, widget_id: int, index: int) -> bool:
-        """Select an item in a Listbox by index."""
-        return self._send_request(SELECT_LISTBOX_ITEM, widget_id=widget_id, index=index)
-
-    def get_listbox_items(self, widget_id: int) -> list[str] | None:
-        """Get all items in a Listbox."""
-        return self._send_request(GET_LISTBOX_ITEMS, widget_id=widget_id)
-
-    def get_listbox_selection(self, widget_id: int) -> list[int] | None:
-        """Get the indices of selected items in a Listbox."""
-        return self._send_request(GET_LISTBOX_SELECTION, widget_id=widget_id)
-
-    def set_scale_value(self, widget_id: int, value: float) -> bool:
-        """Set the value of a Scale widget."""
-        return self._send_request(SET_SCALE_VALUE, widget_id=widget_id, value=value)
-
-    def get_scale_value(self, widget_id: int) -> float | None:
-        """Get the current value of a Scale widget."""
-        return self._send_request(GET_SCALE_VALUE, widget_id=widget_id)
-
-    def double_click_widget(self, widget_id: int) -> bool:
-        """Double-click a widget."""
-        return self._send_request(DOUBLE_CLICK_WIDGET, widget_id=widget_id)
-
     def focus_widget(self, widget_id: int) -> bool:
         """Set focus to a widget."""
         return self._send_request(FOCUS_WIDGET, widget_id=widget_id)
@@ -227,10 +178,6 @@ class RemoteBridge:
         """Get the currently focused widget's ID."""
         return self._send_request(GET_FOCUSED_WIDGET)
 
-    def right_click_widget(self, widget_id: int) -> bool:
-        """Right-click a widget."""
-        return self._send_request(RIGHT_CLICK_WIDGET, widget_id=widget_id)
-
     def get_widget_value(self, widget_id: int) -> Any:
         """Get the value of a widget based on its type."""
         return self._send_request(GET_WIDGET_VALUE, widget_id=widget_id)
@@ -238,3 +185,7 @@ class RemoteBridge:
     def set_widget_value(self, widget_id: int, value: Any) -> bool:
         """Set the value of a widget based on its type."""
         return self._send_request(SET_WIDGET_VALUE, widget_id=widget_id, value=value)
+
+    def get_widget_options(self, widget_id: int) -> list[str] | None:
+        """Get the available options for a widget (Combobox, Listbox)."""
+        return self._send_request(GET_WIDGET_OPTIONS, widget_id=widget_id)

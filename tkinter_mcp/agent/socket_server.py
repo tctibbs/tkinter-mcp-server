@@ -15,27 +15,14 @@ from tkinter_mcp.bridge.protocol import (
     CLOSE_APP,
     DEFAULT_HOST,
     DEFAULT_PORT,
-    DOUBLE_CLICK_WIDGET,
     FIND_WIDGET_BY_TEXT,
     FOCUS_WIDGET,
-    GET_CHECKBOX_STATE,
-    GET_COMBOBOX_OPTIONS,
-    GET_COMBOBOX_VALUE,
     GET_FOCUSED_WIDGET,
-    GET_LISTBOX_ITEMS,
-    GET_LISTBOX_SELECTION,
-    GET_RADIO_VALUE,
-    GET_SCALE_VALUE,
     GET_UI_LAYOUT,
+    GET_WIDGET_OPTIONS,
     GET_WIDGET_VALUE,
     GET_WINDOW_GEOMETRY,
-    RIGHT_CLICK_WIDGET,
-    SELECT_COMBOBOX,
-    SELECT_LISTBOX_ITEM,
-    SELECT_RADIO,
-    SET_SCALE_VALUE,
     SET_WIDGET_VALUE,
-    TOGGLE_CHECKBOX,
     TYPE_TEXT,
     Request,
     Response,
@@ -160,24 +147,11 @@ class AgentServer:
             TYPE_TEXT: self._type_text,
             FIND_WIDGET_BY_TEXT: self._find_widget_by_text,
             CLOSE_APP: self._close_app,
-            TOGGLE_CHECKBOX: self._toggle_checkbox,
-            GET_CHECKBOX_STATE: self._get_checkbox_state,
-            SELECT_RADIO: self._select_radio,
-            GET_RADIO_VALUE: self._get_radio_value,
-            SELECT_COMBOBOX: self._select_combobox,
-            GET_COMBOBOX_VALUE: self._get_combobox_value,
-            GET_COMBOBOX_OPTIONS: self._get_combobox_options,
-            SELECT_LISTBOX_ITEM: self._select_listbox_item,
-            GET_LISTBOX_ITEMS: self._get_listbox_items,
-            GET_LISTBOX_SELECTION: self._get_listbox_selection,
-            SET_SCALE_VALUE: self._set_scale_value,
-            GET_SCALE_VALUE: self._get_scale_value,
-            DOUBLE_CLICK_WIDGET: self._double_click_widget,
             FOCUS_WIDGET: self._focus_widget,
             GET_FOCUSED_WIDGET: self._get_focused_widget,
-            RIGHT_CLICK_WIDGET: self._right_click_widget,
             GET_WIDGET_VALUE: self._get_widget_value,
             SET_WIDGET_VALUE: self._set_widget_value,
+            GET_WIDGET_OPTIONS: self._get_widget_options,
         }
 
         handler = handlers.get(request.method)
@@ -220,20 +194,46 @@ class AgentServer:
 
         return execute_on_main_thread(self._root, _get)
 
-    def _click_widget(self, widget_id: int) -> bool:
-        """Click a widget on main thread."""
+    def _click_widget(
+        self,
+        widget_id: int,
+        button: str = "left",
+        double: bool = False,
+    ) -> bool:
+        """Click a widget on main thread.
+
+        Args:
+            widget_id: The widget ID to click
+            button: Mouse button - "left", "right", or "middle"
+            double: If True, perform a double-click
+        """
 
         def _click() -> bool:
             widget = find_widget_by_id(self._root, widget_id)
             if widget is None:
                 return False
 
-            if hasattr(widget, "invoke"):
+            # Map button name to Tkinter button number
+            button_map = {"left": 1, "middle": 2, "right": 3}
+            btn_num = button_map.get(button, 1)
+
+            # For left single-click, try invoke() first (works for buttons)
+            if button == "left" and not double and hasattr(widget, "invoke"):
                 widget.invoke()
                 return True
 
-            widget.event_generate("<Button-1>")
-            widget.event_generate("<ButtonRelease-1>")
+            # Generate click events
+            btn_event = f"<Button-{btn_num}>"
+            release_event = f"<ButtonRelease-{btn_num}>"
+
+            widget.event_generate(btn_event)
+            widget.event_generate(release_event)
+
+            if double:
+                widget.event_generate(btn_event)
+                widget.event_generate(release_event)
+                widget.event_generate(f"<Double-Button-{btn_num}>")
+
             return True
 
         return execute_on_main_thread(self._root, _click)
@@ -285,283 +285,6 @@ class AgentServer:
         except Exception:
             return False
 
-    def _toggle_checkbox(self, widget_id: int) -> bool:
-        """Toggle a Checkbutton widget."""
-
-        def _toggle() -> bool:
-            widget = find_widget_by_id(self._root, widget_id)
-            if widget is None:
-                return False
-
-            widget_class = widget.winfo_class()
-            if widget_class not in ("Checkbutton", "TCheckbutton"):
-                return False
-
-            widget.invoke()
-            return True
-
-        return execute_on_main_thread(self._root, _toggle)
-
-    def _get_checkbox_state(self, widget_id: int) -> bool | None:
-        """Get the current state of a Checkbutton widget."""
-
-        def _get_state() -> bool | None:
-            widget = find_widget_by_id(self._root, widget_id)
-            if widget is None:
-                return None
-
-            widget_class = widget.winfo_class()
-            if widget_class not in ("Checkbutton", "TCheckbutton"):
-                return None
-
-            # Try to get the variable value
-            try:
-                var = widget.cget("variable")
-                if var:
-                    # Get the variable from the widget's master
-                    value = widget.getvar(var)
-                    # Handle different variable types
-                    if isinstance(value, bool):
-                        return value
-                    if isinstance(value, int):
-                        return value == 1
-                    if isinstance(value, str):
-                        return value in ("1", "true", "True", "yes", "on")
-            except Exception:
-                pass
-
-            # Fallback: check instate for ttk
-            try:
-                if hasattr(widget, "instate"):
-                    return widget.instate(["selected"])
-            except Exception:
-                pass
-
-            return None
-
-        return execute_on_main_thread(self._root, _get_state)
-
-    def _select_radio(self, widget_id: int) -> bool:
-        """Select a Radiobutton widget."""
-
-        def _select() -> bool:
-            widget = find_widget_by_id(self._root, widget_id)
-            if widget is None:
-                return False
-
-            widget_class = widget.winfo_class()
-            if widget_class not in ("Radiobutton", "TRadiobutton"):
-                return False
-
-            widget.invoke()
-            return True
-
-        return execute_on_main_thread(self._root, _select)
-
-    def _get_radio_value(self, widget_id: int) -> str | None:
-        """Get the current value of a Radiobutton's variable."""
-
-        def _get_value() -> str | None:
-            widget = find_widget_by_id(self._root, widget_id)
-            if widget is None:
-                return None
-
-            widget_class = widget.winfo_class()
-            if widget_class not in ("Radiobutton", "TRadiobutton"):
-                return None
-
-            try:
-                var = widget.cget("variable")
-                if var:
-                    value = widget.getvar(var)
-                    return str(value) if value is not None else None
-            except Exception:
-                pass
-
-            return None
-
-        return execute_on_main_thread(self._root, _get_value)
-
-    def _select_combobox(self, widget_id: int, value: str) -> bool:
-        """Select a value in a Combobox widget."""
-
-        def _select() -> bool:
-            widget = find_widget_by_id(self._root, widget_id)
-            if widget is None:
-                return False
-
-            widget_class = widget.winfo_class()
-            if widget_class != "TCombobox":
-                return False
-
-            try:
-                widget.set(value)
-                # Trigger any bound events
-                widget.event_generate("<<ComboboxSelected>>")
-                return True
-            except Exception:
-                return False
-
-        return execute_on_main_thread(self._root, _select)
-
-    def _get_combobox_value(self, widget_id: int) -> str | None:
-        """Get the current value of a Combobox."""
-
-        def _get_value() -> str | None:
-            widget = find_widget_by_id(self._root, widget_id)
-            if widget is None:
-                return None
-
-            widget_class = widget.winfo_class()
-            if widget_class != "TCombobox":
-                return None
-
-            try:
-                return widget.get()
-            except Exception:
-                return None
-
-        return execute_on_main_thread(self._root, _get_value)
-
-    def _get_combobox_options(self, widget_id: int) -> list[str] | None:
-        """Get the available options in a Combobox."""
-
-        def _get_options() -> list[str] | None:
-            widget = find_widget_by_id(self._root, widget_id)
-            if widget is None:
-                return None
-
-            widget_class = widget.winfo_class()
-            if widget_class != "TCombobox":
-                return None
-
-            try:
-                values = widget.cget("values")
-                if values:
-                    return list(values)
-                return []
-            except Exception:
-                return None
-
-        return execute_on_main_thread(self._root, _get_options)
-
-    def _select_listbox_item(self, widget_id: int, index: int) -> bool:
-        """Select an item in a Listbox by index."""
-
-        def _select() -> bool:
-            widget = find_widget_by_id(self._root, widget_id)
-            if widget is None:
-                return False
-
-            widget_class = widget.winfo_class()
-            if widget_class != "Listbox":
-                return False
-
-            try:
-                widget.selection_clear(0, "end")
-                widget.selection_set(index)
-                widget.activate(index)
-                widget.event_generate("<<ListboxSelect>>")
-                return True
-            except Exception:
-                return False
-
-        return execute_on_main_thread(self._root, _select)
-
-    def _get_listbox_items(self, widget_id: int) -> list[str] | None:
-        """Get all items in a Listbox."""
-
-        def _get_items() -> list[str] | None:
-            widget = find_widget_by_id(self._root, widget_id)
-            if widget is None:
-                return None
-
-            widget_class = widget.winfo_class()
-            if widget_class != "Listbox":
-                return None
-
-            try:
-                return list(widget.get(0, "end"))
-            except Exception:
-                return None
-
-        return execute_on_main_thread(self._root, _get_items)
-
-    def _get_listbox_selection(self, widget_id: int) -> list[int] | None:
-        """Get the indices of selected items in a Listbox."""
-
-        def _get_selection() -> list[int] | None:
-            widget = find_widget_by_id(self._root, widget_id)
-            if widget is None:
-                return None
-
-            widget_class = widget.winfo_class()
-            if widget_class != "Listbox":
-                return None
-
-            try:
-                return list(widget.curselection())
-            except Exception:
-                return None
-
-        return execute_on_main_thread(self._root, _get_selection)
-
-    def _set_scale_value(self, widget_id: int, value: float) -> bool:
-        """Set the value of a Scale widget."""
-
-        def _set_value() -> bool:
-            widget = find_widget_by_id(self._root, widget_id)
-            if widget is None:
-                return False
-
-            widget_class = widget.winfo_class()
-            if widget_class not in ("Scale", "TScale"):
-                return False
-
-            try:
-                widget.set(value)
-                return True
-            except Exception:
-                return False
-
-        return execute_on_main_thread(self._root, _set_value)
-
-    def _get_scale_value(self, widget_id: int) -> float | None:
-        """Get the current value of a Scale widget."""
-
-        def _get_value() -> float | None:
-            widget = find_widget_by_id(self._root, widget_id)
-            if widget is None:
-                return None
-
-            widget_class = widget.winfo_class()
-            if widget_class not in ("Scale", "TScale"):
-                return None
-
-            try:
-                return float(widget.get())
-            except Exception:
-                return None
-
-        return execute_on_main_thread(self._root, _get_value)
-
-    def _double_click_widget(self, widget_id: int) -> bool:
-        """Double-click a widget."""
-
-        def _double_click() -> bool:
-            widget = find_widget_by_id(self._root, widget_id)
-            if widget is None:
-                return False
-
-            widget.event_generate("<Button-1>")
-            widget.event_generate("<ButtonRelease-1>")
-            widget.event_generate("<Button-1>")
-            widget.event_generate("<ButtonRelease-1>")
-            widget.event_generate("<Double-Button-1>")
-            return True
-
-        return execute_on_main_thread(self._root, _double_click)
-
     def _focus_widget(self, widget_id: int) -> bool:
         """Set focus to a widget."""
 
@@ -591,20 +314,6 @@ class AgentServer:
             return None
 
         return execute_on_main_thread(self._root, _get_focus)
-
-    def _right_click_widget(self, widget_id: int) -> bool:
-        """Right-click a widget."""
-
-        def _right_click() -> bool:
-            widget = find_widget_by_id(self._root, widget_id)
-            if widget is None:
-                return False
-
-            widget.event_generate("<Button-3>")
-            widget.event_generate("<ButtonRelease-3>")
-            return True
-
-        return execute_on_main_thread(self._root, _right_click)
 
     def _get_widget_value(self, widget_id: int) -> Any:
         """Get the value of a widget based on its type."""
@@ -728,6 +437,49 @@ class AgentServer:
                 widget.insert(0, str(value))
                 return True
 
+            # Checkbutton - toggle or set state
+            if widget_class in ("Checkbutton", "TCheckbutton"):
+                # Interpret value as boolean
+                str_val = str(value).lower()
+                target_state = str_val in ("true", "1", "yes", "on")
+
+                # Get current state
+                try:
+                    var = widget.cget("variable")
+                    if var:
+                        current = widget.getvar(var)
+                        if isinstance(current, int):
+                            current_state = current == 1
+                        elif isinstance(current, str):
+                            current_state = current in ("1", "true", "yes", "on")
+                        else:
+                            current_state = bool(current)
+
+                        # Toggle if needed
+                        if current_state != target_state:
+                            widget.invoke()
+                        return True
+                except Exception:
+                    pass
+                return False
+
+            # Radiobutton - select this radio button
+            if widget_class in ("Radiobutton", "TRadiobutton"):
+                widget.invoke()
+                return True
+
+            # Listbox - select by index
+            if widget_class == "Listbox":
+                try:
+                    index = int(value)
+                    widget.selection_clear(0, "end")
+                    widget.selection_set(index)
+                    widget.activate(index)
+                    widget.event_generate("<<ListboxSelect>>")
+                    return True
+                except (ValueError, TypeError):
+                    return False
+
             # Try generic set() method
             if hasattr(widget, "set"):
                 try:
@@ -739,3 +491,34 @@ class AgentServer:
             return False
 
         return execute_on_main_thread(self._root, _set_value)
+
+    def _get_widget_options(self, widget_id: int) -> list[str] | None:
+        """Get the available options for a widget (Combobox, Listbox)."""
+
+        def _get_options() -> list[str] | None:
+            widget = find_widget_by_id(self._root, widget_id)
+            if widget is None:
+                return None
+
+            widget_class = widget.winfo_class()
+
+            # Combobox options
+            if widget_class == "TCombobox":
+                try:
+                    values = widget.cget("values")
+                    if values:
+                        return list(values)
+                    return []
+                except Exception:
+                    return None
+
+            # Listbox items
+            if widget_class == "Listbox":
+                try:
+                    return list(widget.get(0, "end"))
+                except Exception:
+                    return None
+
+            return None
+
+        return execute_on_main_thread(self._root, _get_options)
