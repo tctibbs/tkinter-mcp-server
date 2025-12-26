@@ -194,11 +194,15 @@ class AgentServer:
         )
         return layout.to_dict()
 
-    def _capture_screenshot(self) -> str:
+    def _capture_screenshot(
+        self,
+        max_dimension: int = 800,
+        quality: int = 70,
+    ) -> str:
         """Capture screenshot on main thread."""
         screenshot = execute_on_main_thread(
             self._root,
-            lambda: capture_window_screenshot(self._root),
+            lambda: capture_window_screenshot(self._root, max_dimension, quality),
         )
         return screenshot.decode("utf-8")
 

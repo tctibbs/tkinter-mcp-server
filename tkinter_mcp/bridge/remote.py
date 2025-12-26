@@ -129,9 +129,17 @@ class RemoteBridge:
         data = self._send_request(GET_UI_LAYOUT)
         return UILayout.from_dict(data)
 
-    def capture_screenshot(self) -> bytes:
+    def capture_screenshot(
+        self,
+        max_dimension: int = 800,
+        quality: int = 70,
+    ) -> bytes:
         """Capture a screenshot of the window."""
-        data = self._send_request(CAPTURE_SCREENSHOT)
+        data = self._send_request(
+            CAPTURE_SCREENSHOT,
+            max_dimension=max_dimension,
+            quality=quality,
+        )
         return data.encode("utf-8")
 
     def get_window_geometry(self) -> dict[str, int]:
