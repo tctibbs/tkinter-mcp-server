@@ -15,12 +15,18 @@ An MCP server that enables AI agents to launch, inspect, and interact with Tkint
 | Tool | Description |
 |------|-------------|
 | `launch_app` | Start a Tkinter app with inspection enabled |
+| `is_connected` | Check if an app is currently connected |
 | `get_ui_layout` | Get the widget tree as structured JSON |
-| `view_application` | Capture a screenshot of the window |
-| `click_widget` | Click a widget by its ID |
+| `view_application` | Capture a compressed JPEG screenshot |
+| `get_window_info` | Get window position and dimensions |
+| `click_widget` | Click a widget (left/right/middle, single/double) |
 | `type_text` | Type text into Entry or Text widgets |
 | `get_widget_by_text` | Find a widget by its text content |
-| `get_window_info` | Get window position and dimensions |
+| `focus_widget` | Set keyboard focus to a widget |
+| `get_focused_widget` | Get the currently focused widget |
+| `get_widget_value` | Get widget value (Entry, Text, Scale, Checkbox, etc.) |
+| `set_widget_value` | Set widget value based on widget type |
+| `get_widget_options` | Get options for Combobox or Listbox |
 | `close_app` | Terminate the application |
 
 ## Installation
@@ -64,7 +70,7 @@ MCP Client ←→ MCP Server ←→ Socket ←→ Agent ←→ Tkinter App
 
 - [ ] Publish to PyPI for simpler installation
 - [ ] Add to MCP registry for one-command setup
-- [ ] Support for additional widget types (Listbox, Canvas, etc.)
+- [x] Support for additional widget types (Listbox, Combobox, Scale, Spinbox, etc.)
 
 ## License
 

@@ -230,9 +230,9 @@ class AgentServer:
             widget.event_generate(release_event)
 
             if double:
+                # Generate second click pair for double-click
                 widget.event_generate(btn_event)
                 widget.event_generate(release_event)
-                widget.event_generate(f"<Double-Button-{btn_num}>")
 
             return True
 

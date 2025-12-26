@@ -154,7 +154,7 @@ def find_widget_by_text(root: tk.Widget, text: str) -> tk.Widget | None:
         The first widget with matching text, or None
     """
     widget_text = get_widget_text(root)
-    if widget_text and text in widget_text:
+    if isinstance(widget_text, str) and text in widget_text:
         return root
 
     for child in root.winfo_children():
