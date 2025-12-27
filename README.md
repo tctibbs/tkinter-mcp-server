@@ -27,6 +27,7 @@ An MCP server that enables AI agents to launch, inspect, and interact with Tkint
 | `get_widget_value` | Get widget value (Entry, Text, Scale, Checkbox, etc.) |
 | `set_widget_value` | Set widget value based on widget type |
 | `get_widget_options` | Get options for Combobox or Listbox |
+| `drag_widget` | Drag and drop between two widgets |
 | `close_app` | Terminate the application |
 
 ## Installation

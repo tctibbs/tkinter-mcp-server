@@ -67,15 +67,15 @@ def get_dpi_scale_factor() -> float:
 
 def capture_window_screenshot(
     root: tk.Tk,
-    max_dimension: int = 800,
-    jpeg_quality: int = 70,
+    max_dimension: int = 600,
+    jpeg_quality: int = 60,
 ) -> bytes:
     """Capture a screenshot of the Tkinter window.
 
     Args:
         root: The Tkinter root window
-        max_dimension: Maximum width or height in pixels (default 800)
-        jpeg_quality: JPEG compression quality 1-100 (default 70)
+        max_dimension: Maximum width or height in pixels (default 600)
+        jpeg_quality: JPEG compression quality 1-100 (default 60)
 
     Returns:
         JPEG image data as base64-encoded bytes

@@ -13,6 +13,7 @@ from tkinter_mcp.bridge.protocol import (
     CLOSE_APP,
     DEFAULT_HOST,
     DEFAULT_PORT,
+    DRAG_WIDGET,
     FIND_WIDGET_BY_TEXT,
     FOCUS_WIDGET,
     GET_FOCUSED_WIDGET,
@@ -189,3 +190,11 @@ class RemoteBridge:
     def get_widget_options(self, widget_id: int) -> list[str] | None:
         """Get the available options for a widget (Combobox, Listbox)."""
         return self._send_request(GET_WIDGET_OPTIONS, widget_id=widget_id)
+
+    def drag_widget(self, start_widget_id: int, end_widget_id: int) -> bool:
+        """Drag from one widget to another."""
+        return self._send_request(
+            DRAG_WIDGET,
+            start_widget_id=start_widget_id,
+            end_widget_id=end_widget_id,
+        )

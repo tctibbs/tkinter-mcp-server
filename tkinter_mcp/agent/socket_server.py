@@ -15,6 +15,7 @@ from tkinter_mcp.bridge.protocol import (
     CLOSE_APP,
     DEFAULT_HOST,
     DEFAULT_PORT,
+    DRAG_WIDGET,
     FIND_WIDGET_BY_TEXT,
     FOCUS_WIDGET,
     GET_FOCUSED_WIDGET,
@@ -152,6 +153,7 @@ class AgentServer:
             GET_WIDGET_VALUE: self._get_widget_value,
             SET_WIDGET_VALUE: self._set_widget_value,
             GET_WIDGET_OPTIONS: self._get_widget_options,
+            DRAG_WIDGET: self._drag_widget,
         }
 
         handler = handlers.get(request.method)
@@ -522,3 +524,38 @@ class AgentServer:
             return None
 
         return execute_on_main_thread(self._root, _get_options)
+
+    def _drag_widget(self, start_widget_id: int, end_widget_id: int) -> bool:
+        """Drag from one widget to another on main thread.
+
+        Args:
+            start_widget_id: The widget ID to drag from
+            end_widget_id: The widget ID to drag to
+        """
+
+        def _drag() -> bool:
+            start_widget = find_widget_by_id(self._root, start_widget_id)
+            end_widget = find_widget_by_id(self._root, end_widget_id)
+
+            if start_widget is None or end_widget is None:
+                return False
+
+            # Get center coordinates of each widget
+            start_x = start_widget.winfo_width() // 2
+            start_y = start_widget.winfo_height() // 2
+            end_x = end_widget.winfo_width() // 2
+            end_y = end_widget.winfo_height() // 2
+
+            # Generate drag sequence
+            # 1. Press button on start widget
+            start_widget.event_generate("<Button-1>", x=start_x, y=start_y)
+
+            # 2. Motion event (some apps need this)
+            start_widget.event_generate("<B1-Motion>", x=start_x, y=start_y)
+
+            # 3. Release on end widget
+            end_widget.event_generate("<ButtonRelease-1>", x=end_x, y=end_y)
+
+            return True
+
+        return execute_on_main_thread(self._root, _drag)

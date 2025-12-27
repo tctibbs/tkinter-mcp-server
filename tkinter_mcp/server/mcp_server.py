@@ -123,15 +123,15 @@ def create_mcp_server() -> FastMCP:
             return json.dumps({"error": str(e)})
 
     @mcp.tool
-    def view_application(max_size: int = 800, quality: int = 70) -> str:
+    def view_application(max_size: int = 600, quality: int = 60) -> str:
         """Take a screenshot of the application window.
 
         Returns a base64-encoded JPEG image of the current window state.
         Use this to visually inspect the GUI appearance.
 
         Args:
-            max_size: Maximum width/height in pixels (default 800)
-            quality: JPEG quality 1-100 (default 70)
+            max_size: Maximum width/height in pixels (default 600)
+            quality: JPEG quality 1-100 (default 60)
 
         Returns:
             Base64-encoded JPEG string prefixed with data URI scheme.
@@ -391,5 +391,26 @@ def create_mcp_server() -> FastMCP:
             )
         except RemoteBridgeError as e:
             return json.dumps({"found": False, "error": str(e)})
+
+    @mcp.tool
+    def drag_widget(start_widget_id: int, end_widget_id: int) -> str:
+        """Perform drag and drop between two widgets.
+
+        Simulates dragging from one widget to another. Useful for
+        drag-and-drop interfaces like chess boards, sortable lists, etc.
+
+        Args:
+            start_widget_id: The widget ID to drag from
+            end_widget_id: The widget ID to drag to
+
+        Returns:
+            JSON with success status and message
+        """
+        try:
+            success = get_bridge().drag_widget(start_widget_id, end_widget_id)
+            msg = "Drag completed" if success else "Widget not found"
+            return json.dumps({"success": success, "message": msg})
+        except RemoteBridgeError as e:
+            return json.dumps({"success": False, "error": str(e)})
 
     return mcp
