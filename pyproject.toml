@@ -1,6 +1,6 @@
 [project]
 name = "tkinter-mcp-server"
-version = "0.9.0"
+version = "0.9.1"
 description = "MCP server for inspecting and automating Tkinter GUI applications"
 authors = [{ name = "Tristan Tibbs" }]
 license = { text = "MIT" }
@@ -43,7 +43,7 @@ dev = [
 ]
 
 [project.scripts]
-tkinter-mcp = "tkinter_mcp.main:main"
+tkinter-mcp-server = "tkinter_mcp.main:main"
 tkinter-mcp-launch = "tkinter_mcp.launcher:main"
 
 [project.urls]
