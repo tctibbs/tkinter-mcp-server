@@ -17,7 +17,8 @@ An MCP server that enables AI agents to launch, inspect, and interact with Tkint
 | `launch_app` | Start a Tkinter app with inspection enabled |
 | `is_connected` | Check if an app is currently connected |
 | `get_ui_layout` | Get the widget tree as structured JSON |
-| `view_application` | Capture a compressed JPEG screenshot |
+| `view_application` | Capture a high-quality JPEG screenshot |
+| `view_application_thumbnail` | Capture a small thumbnail screenshot |
 | `get_window_info` | Get window position and dimensions |
 | `click_widget` | Click a widget (left/right/middle, single/double) |
 | `type_text` | Type text into Entry or Text widgets |

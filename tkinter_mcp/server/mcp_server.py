@@ -123,7 +123,7 @@ def create_mcp_server() -> FastMCP:
             return json.dumps({"error": str(e)})
 
     @mcp.tool
-    def view_application(max_size: int = 800, quality: int = 40) -> str:
+    def view_application(max_size: int = 800, quality: int = 70) -> str:
         """Take a screenshot of the application window.
 
         Returns a base64-encoded JPEG image of the current window state.
@@ -131,13 +131,29 @@ def create_mcp_server() -> FastMCP:
 
         Args:
             max_size: Maximum width/height in pixels (default 800)
-            quality: JPEG quality 1-100 (default 40)
+            quality: JPEG quality 1-100 (default 70)
 
         Returns:
             Base64-encoded JPEG string prefixed with data URI scheme.
         """
         try:
             screenshot_b64 = get_bridge().capture_screenshot(max_size, quality)
+            return f"data:image/jpeg;base64,{screenshot_b64.decode('utf-8')}"
+        except RemoteBridgeError as e:
+            return json.dumps({"error": str(e)})
+
+    @mcp.tool
+    def view_application_thumbnail() -> str:
+        """Take a small thumbnail screenshot of the application window.
+
+        Returns a low-resolution preview for quick UI state checks.
+        Use view_application for detailed inspection.
+
+        Returns:
+            Base64-encoded JPEG string prefixed with data URI scheme.
+        """
+        try:
+            screenshot_b64 = get_bridge().capture_screenshot(400, 30)
             return f"data:image/jpeg;base64,{screenshot_b64.decode('utf-8')}"
         except RemoteBridgeError as e:
             return json.dumps({"error": str(e)})
