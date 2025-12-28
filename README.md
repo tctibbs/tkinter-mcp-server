@@ -36,10 +36,19 @@ An MCP server that enables AI agents to launch, inspect, and interact with Tkint
 
 ## Installation
 
-### Claude Code
+### uvx (Quick Start)
 
 ```bash
 claude mcp add tkinter-mcp-server -- uvx tkinter-mcp-server
+```
+
+> **Note:** Apps using PIL/ImageTk may have compatibility issues with uvx. Use pip install instead.
+
+### pip (Recommended for PIL apps)
+
+```bash
+pip install tkinter-mcp-server
+claude mcp add tkinter-mcp-server -- tkinter-mcp-server
 ```
 
 ### Claude Desktop
@@ -50,18 +59,13 @@ Add to your Claude Desktop configuration (`~/Library/Application Support/Claude/
 {
   "mcpServers": {
     "tkinter": {
-      "command": "uvx",
-      "args": ["tkinter-mcp-server"]
+      "command": "tkinter-mcp-server"
     }
   }
 }
 ```
 
-### pip
-
-```bash
-pip install tkinter-mcp-server
-```
+For uvx: use `"command": "uvx"` with `"args": ["tkinter-mcp-server"]`
 
 ## How It Works
 
