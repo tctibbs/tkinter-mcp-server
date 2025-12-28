@@ -69,9 +69,9 @@ def create_mcp_server() -> FastMCP:
             bridge.disconnect()
             bridge = None
 
-        # Launch the app with our launcher
+        # Launch the app with our launcher (use entry point for uvx compatibility)
         app_process = subprocess.Popen(
-            [sys.executable, "-m", "tkinter_mcp.launcher", str(path)],
+            ["tkinter-mcp-launch", str(path)],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
@@ -90,15 +90,42 @@ def create_mcp_server() -> FastMCP:
                 )
             time.sleep(0.1)
 
-        # Cleanup on failure
-        app_process.terminate()
+        # Cleanup on failure - capture stderr first for diagnostics
+        stderr_output = ""
+        if app_process is not None:
+            # Check if process has already exited
+            poll_result = app_process.poll()
+            if poll_result is not None:
+                # Process exited - read stderr
+                _, stderr_bytes = app_process.communicate(timeout=1)
+                stderr_output = stderr_bytes.decode("utf-8", errors="replace").strip()
+            else:
+                # Process still running but not accepting connections
+                app_process.terminate()
+                try:
+                    _, stderr_bytes = app_process.communicate(timeout=2)
+                    stderr_output = stderr_bytes.decode(
+                        "utf-8", errors="replace"
+                    ).strip()
+                except subprocess.TimeoutExpired:
+                    app_process.kill()
+                    app_process.communicate()
+
         app_process = None
         bridge = None
+
+        # Build error message with diagnostics
+        error_msg = "Failed to connect to app agent"
+        if stderr_output:
+            # Truncate if too long
+            if len(stderr_output) > 500:
+                stderr_output = stderr_output[:500] + "..."
+            error_msg = f"{error_msg}. App output: {stderr_output}"
 
         return json.dumps(
             {
                 "success": False,
-                "message": "Failed to connect to app agent",
+                "message": error_msg,
             }
         )
 

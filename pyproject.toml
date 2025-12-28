@@ -1,6 +1,6 @@
 [project]
 name = "tkinter-mcp-server"
-version = "0.9.1"
+version = "0.9.2"
 description = "MCP server for inspecting and automating Tkinter GUI applications"
 authors = [{ name = "Tristan Tibbs" }]
 license = { text = "MIT" }
