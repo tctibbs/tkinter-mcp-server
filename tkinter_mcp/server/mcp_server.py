@@ -123,7 +123,7 @@ def create_mcp_server() -> FastMCP:
             return json.dumps({"error": str(e)})
 
     @mcp.tool
-    def view_application(max_size: int = 800, quality: int = 70) -> str:
+    def view_application(max_size: int = 800, quality: int = 40) -> str:
         """Take a screenshot of the application window.
 
         Returns a base64-encoded JPEG image of the current window state.
@@ -131,7 +131,7 @@ def create_mcp_server() -> FastMCP:
 
         Args:
             max_size: Maximum width/height in pixels (default 800)
-            quality: JPEG quality 1-100 (default 70)
+            quality: JPEG quality 1-100 (default 40)
 
         Returns:
             Base64-encoded JPEG string prefixed with data URI scheme.
