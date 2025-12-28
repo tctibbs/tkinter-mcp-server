@@ -1,10 +1,33 @@
 [project]
 name = "tkinter-mcp-server"
-version = "0.1.0"
-description = "MCP server for observing and interacting with Tkinter GUIs"
+version = "0.9.0"
+description = "MCP server for inspecting and automating Tkinter GUI applications"
 authors = [{ name = "Tristan Tibbs" }]
 license = { text = "MIT" }
+readme = "README.md"
 requires-python = ">=3.10"
+keywords = [
+    "mcp",
+    "model-context-protocol",
+    "tkinter",
+    "gui-automation",
+    "ai-agents",
+    "claude",
+    "llm",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Software Development :: User Interfaces",
+]
 dependencies = [
     "fastmcp>=2.0.0",
     "pyautogui>=0.9.54",
@@ -23,12 +46,17 @@ dev = [
 tkinter-mcp = "tkinter_mcp.main:main"
 tkinter-mcp-launch = "tkinter_mcp.launcher:main"
 
+[project.urls]
+Homepage = "https://github.com/tctibbs/tkinter-mcp-server"
+Repository = "https://github.com/tctibbs/tkinter-mcp-server"
+Issues = "https://github.com/tctibbs/tkinter-mcp-server/issues"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["tkinter_mcp"]
+packages = ["src/tkinter_mcp"]
 
 [tool.ruff]
 line-length = 88
@@ -40,7 +68,7 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = [
-    "--cov=tkinter_mcp",
+    "--cov=src/tkinter_mcp",
     "--cov-report=term-missing",
 ]
 markers = [
@@ -49,5 +77,5 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["tkinter_mcp"]
+source = ["src/tkinter_mcp"]
 omit = ["*/tests/*"]

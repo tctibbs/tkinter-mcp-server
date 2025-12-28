@@ -10,6 +10,8 @@ MCP server for inspecting and automating Tkinter GUI applications.
 
 An MCP server that enables AI agents to launch, inspect, and interact with Tkinter applications. The server auto-injects an inspection agent via monkey-patching. No modifications to target apps required.
 
+![Demo](assets/demo.gif)
+
 ## Tools
 
 | Tool | Description |
@@ -36,8 +38,8 @@ An MCP server that enables AI agents to launch, inspect, and interact with Tkint
 Clone the repository and install:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/tkinter-mcp.git
-cd tkinter-mcp
+git clone https://github.com/tctibbs/tkinter-mcp-server.git
+cd tkinter-mcp-server
 pip install -e .
 ```
 
@@ -49,7 +51,7 @@ Then add to your MCP client configuration:
     "tkinter": {
       "command": "python",
       "args": ["-m", "tkinter_mcp.main"],
-      "cwd": "/path/to/tkinter-mcp"
+      "cwd": "/path/to/tkinter-mcp-server"
     }
   }
 }
@@ -59,20 +61,18 @@ Then add to your MCP client configuration:
 
 The server launches Tkinter apps through a custom launcher that patches `tkinter.Tk.__init__`. This injects an agent that communicates over a local socket, enabling thread-safe inspection and control of the GUI.
 
-```
-MCP Client ←→ MCP Server ←→ Socket ←→ Agent ←→ Tkinter App
+```mermaid
+flowchart LR
+    A[MCP Client] <--> B[MCP Server]
+    B <--> C[Socket]
+    C <--> D[Agent]
+    D <--> E[Tkinter App]
 ```
 
 ## Requirements
 
 - Python 3.10+
 - macOS, Windows, or Linux
-
-## Roadmap
-
-- [ ] Publish to PyPI for simpler installation
-- [ ] Add to MCP registry for one-command setup
-- [x] Support for additional widget types (Listbox, Combobox, Scale, Spinbox, etc.)
 
 ## License
 
