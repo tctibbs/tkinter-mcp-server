@@ -123,15 +123,15 @@ def create_mcp_server() -> FastMCP:
             return json.dumps({"error": str(e)})
 
     @mcp.tool
-    def view_application(max_size: int = 600, quality: int = 60) -> str:
+    def view_application(max_size: int = 800, quality: int = 70) -> str:
         """Take a screenshot of the application window.
 
         Returns a base64-encoded JPEG image of the current window state.
         Use this to visually inspect the GUI appearance.
 
         Args:
-            max_size: Maximum width/height in pixels (default 600)
-            quality: JPEG quality 1-100 (default 60)
+            max_size: Maximum width/height in pixels (default 800)
+            quality: JPEG quality 1-100 (default 70)
 
         Returns:
             Base64-encoded JPEG string prefixed with data URI scheme.
