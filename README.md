@@ -2,6 +2,7 @@
 
 MCP server for inspecting and automating Tkinter GUI applications.
 
+[![PyPI](https://img.shields.io/pypi/v/tkinter-mcp-server.svg)](https://pypi.org/project/tkinter-mcp-server/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![MCP](https://img.shields.io/badge/MCP-compatible-purple.svg)](https://modelcontextprotocol.io)
@@ -35,26 +36,31 @@ An MCP server that enables AI agents to launch, inspect, and interact with Tkint
 
 ## Installation
 
-Clone the repository and install:
+### Claude Code
 
 ```bash
-git clone https://github.com/tctibbs/tkinter-mcp-server.git
-cd tkinter-mcp-server
-pip install -e .
+claude mcp add tkinter-mcp-server -- uvx tkinter-mcp-server
 ```
 
-Then add to your MCP client configuration:
+### Claude Desktop
+
+Add to your Claude Desktop configuration (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
 
 ```json
 {
   "mcpServers": {
     "tkinter": {
-      "command": "python",
-      "args": ["-m", "tkinter_mcp.main"],
-      "cwd": "/path/to/tkinter-mcp-server"
+      "command": "uvx",
+      "args": ["tkinter-mcp-server"]
     }
   }
 }
+```
+
+### pip
+
+```bash
+pip install tkinter-mcp-server
 ```
 
 ## How It Works
